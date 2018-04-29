@@ -1,0 +1,16 @@
+{
+  "name": "reddit-api-app",
+  "version": "1.0.0",
+  "description": "final project for CS4220",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap-vue": "^2.0.0-rc.9",
+    "express": "^4.16.3",
+    "nodemon": "^1.17.3"
+  }
+}
