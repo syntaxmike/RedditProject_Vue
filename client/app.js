@@ -35,7 +35,7 @@ const searchButtonComponent = {
 props: ['buttons']
 }
 
-//
+
 // const socket = io()
 const app = new Vue({
     el: '#reddit-app',
@@ -46,18 +46,46 @@ const app = new Vue({
         searchButtons: ['Search Subreddits', 'Search User']
     },
     methods: {
-        // search: function () {
-        //     if (!this.message)
-        //         return
-        //
-        //     socket.emit('send-message', { message: this.message, user: this.user, avatar: 'https://robohash.org/'+this.user.name+'.png?set=set3' })
-        // }
+      // startSearch: function() {
+      //       if (!this.search)
+      //           return
+        
+      //       socket.emit("search", this.search)
+      //   }
     },
     components: {
         'results-component': resultsComponent,
         'search-button-component': searchButtonComponent
-        // 'chat-component': chatComponent,
-        // 'duplicate-user-component':duplicateUserComponent,
-        // 'welcome-component':welcomeComponent
     }
+})
+
+
+// Client Side Socket Event
+
+/*Returns an array of objects of sub reddit data
+  ex: {hide_ads: false, banner_img: something, id: "fjd2k", ...}
+*/
+socket.on('search-Results', search => {
+  
+})
+
+/*Returns an array of objects topics within subreddit
+  ex: {title: "Steam", author: "Me", upvotes: -1, ...}
+*/
+socket.on('reddit-Topics', redditTopics => {
+
+})
+
+/*Returns an array of objects topics  of popular sub reddit data
+  ex: {hide_ads: false, banner_img: something, id: "fjd2k", ...}
+*/
+socket.on('reddit-popular', user => {
+
+})
+
+/*Returns a boolean
+  ex: true
+*/
+socket.on('isAvailable', response => {
+
 })

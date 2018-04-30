@@ -7,6 +7,6 @@ const
     server = require('http').Server(app)
 
 app.use(express.static(path.join(__dirname, '..', '/client')))
-// require('./sockets')(server)
+require('./sockets')(server)
 
 server.listen(8080)
