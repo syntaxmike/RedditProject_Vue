@@ -1,6 +1,12 @@
 /* GENERAL STYLES */
-#chat-app {
+#reddit-app, body {
     background: #efefef;
+}
+
+.jumbotron {
+background-image: url("https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg");
+background-size: fit;
+background-position: right center;
 }
 
 hr {
@@ -132,4 +138,3 @@ hr {
 .me img {
     background: #FFFFFF;
 }
-
