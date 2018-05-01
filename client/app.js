@@ -92,7 +92,7 @@ socket.on('search-Results', search => {
 })
 
 /*Returns an array of objects topics within subreddit, possibly display in collapse of UI in unordered list
-  ex: {title: "Steam", author: "Me", upvotes: -1, ...}
+ * ex: {title: "Steam", author: "Me", upvotes: -1, ...}
 */
 socket.on('subreddit-Topics', redditTopics => {
   console.log(redditTopics)

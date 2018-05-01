@@ -73,7 +73,9 @@ module.exports = (server) => {
                         }
                     })
                     .then(() => {
+
                         io.emit("reddit-popular", popularSubReddit)
+                        
                     })
 
             })
