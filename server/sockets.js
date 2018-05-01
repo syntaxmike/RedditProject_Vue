@@ -44,18 +44,18 @@ module.exports = (server) => {
 
 
                             redditTopics.push(
-                                ["Title: " + title
-                                +"\nAuthor: " + author
-                                +"\nUpvotes: " + up
-                                +"\n# of Comments: " + numComments
-                                +"\nUrl to comments: www.reddit.com" +  link])
+                                {title:title,
+                                 author: author,
+                                upvotes: up,
+                                comments: numComments,
+                                url: link})
                         }
                     })
                     .then(() => {
                         io.emit("reddit-Topics", redditTopics)
                     })
 
-                
+
             })
 
 
@@ -64,18 +64,18 @@ module.exports = (server) => {
             socket.on("popular", pop => {
 
                 const popularSubReddit = []
-                
+
                 axios.get(url + `subreddits/popular.json`)
                     .then(function (response) {
                         for(let index in response.data.data.children){
                             popularSubReddit.push(response.data.data.children[index].data)
-                            
+
                         }
                     })
                     .then(() => {
 
                         io.emit("reddit-popular", popularSubReddit)
-                        
+
                     })
 
             })
