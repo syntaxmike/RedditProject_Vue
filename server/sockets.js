@@ -11,6 +11,8 @@ module.exports = (server) => {
 
             //User search by topic
             socket.on('search', search => {
+              console.log(search)
+
                 const searchResults = []
                 axios.get(url + `subreddits/search.json?limit=20&q=${search}`)
                     .then(function (response) {
@@ -18,31 +20,32 @@ module.exports = (server) => {
                             searchResults.push(response.data.children[index].data)
                         }
                     })
-    
+
                  io.emit('search-Results', search)
             })
 
-            
+
             //Returns topics from reddit, top/hot do not work or return private
             socket.on('searchSub', chosenReddit => {
+              console.log(chosenReddit)
                 const topics = []
                 axios.get(url + `r/${chosenReddit}/.json?count=20`)
                     .then(function (response) {
                         for(let index in idResult.data.children){
-                            const 
+                            const
                                 author = idResult.data.children[index].data.author,
                                 size = idResult.data.children[index].data.title.length,
                                 up = idResult.data.children[index].data.ups,
                                 numComments = idResult.data.children[index].data.num_comments,
                                 link = idResult.data.children[index].data.permalink
-            
+
                             if(size > 220){
                                 const title = idResult.data.children[index].data.title.slice(0, 220) + "..."
                             }else{
                                 const title = idResult.data.children[index].data.title
                             }
-            
-            
+
+
                             topics.push(
                                 ["Title: " + title
                                 +"\nAuthor: " + author
@@ -74,14 +77,14 @@ module.exports = (server) => {
 
             //Check if a username is available, returns true or false.
             socket.on("user-name", userName => {
-
+                console.log(userName)
                 axios.get(url + `api/username_available.json?user=${userName}`)
                     .then(function (response) {
                         io.emit("isAvailable", response)
                     })
 
             })
-            
+
         })
 
 }

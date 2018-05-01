@@ -32,7 +32,19 @@
       <div class="row">
          <!-- message box column-->
          <div class="col s12">
-           <search-button-component v-bind:buttons="searchButtons"></search-button-component>
+           <div class="input-group">
+             <input type="text" ref="searchInput" class="form-control" aria-label="Text input with dropdown button">
+             <div class="input-group-append">
+               <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Type of Search</button>
+               <div class="dropdown-menu">
+                 <button class="dropdown-item" v-on:click="searchSubreddit">Search Subreddits</button>
+                 <button class="dropdown-item" v-on:click="searchTopic">Search Topic</button>
+                 <button class="dropdown-item" v-on:click="searchUser">Search User</button>
+                 <button class="dropdown-item" v-on:click="popular">Popular</button>
+               </div>
+             </div>
+          </div>
+           <!-- <search-button-component v-bind:buttons="searchButtons"></search-button-component> -->
             <!-- chat box -->
             <results-component v-bind:data="results"></results-component>
 
@@ -41,7 +53,6 @@
 
       </div>
    </div>
-
    <script type="text/javascript" src="https://unpkg.com/vue@2.5.15/dist/vue.min.js"></script>
    <script type="text/javascript" src="https://unpkg.com/socket.io-client@2.1.0/dist/socket.io.js"></script>
    <script type="text/javascript" src="app.js"></script>
