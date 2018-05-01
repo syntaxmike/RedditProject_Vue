@@ -51,24 +51,24 @@ const app = new Vue({
               if (!this.$refs.searchInput.value)
                   return
 
-              socket.emit('searchSub', { query: this.$refs.searchInput.value})
+              socket.emit('search', this.$refs.searchInput.value)
           },
       searchTopic: function () {
         console.log(this.$refs.searchInput.value)
               if (!this.$refs.searchInput.value)
                   return
 
-              socket.emit('search', { query: this.$refs.searchInput.value})
+              socket.emit('search', this.$refs.searchInput.value)
           },
       searchUser: function () {
         console.log(this.$refs.searchInput.value)
               if (!this.$refs.searchInput.value)
                   return
 
-              socket.emit('user-name', { query: this.$refs.searchInput.value})
+              socket.emit('user-name', this.$refs.searchInput.value)
           },
       popular: function () {
-              socket.emit('popular')
+              socket.emit('popular', null)
           }
     },
     components: {
@@ -91,10 +91,10 @@ socket.on('search-Results', search => {
   console.log(search)
 })
 
-/*Returns an array of objects topics within subreddit
+/*Returns an array of objects topics within subreddit, possibly display in collapse of UI in unordered list
   ex: {title: "Steam", author: "Me", upvotes: -1, ...}
 */
-socket.on('reddit-Topics', redditTopics => {
+socket.on('subreddit-Topics', redditTopics => {
   console.log(redditTopics)
 })
 

@@ -11,42 +11,39 @@ module.exports = (server) => {
 
             //User search by topic
             socket.on('search', search => {
-              console.log(search)
+
 
                 const searchResults = []
                 axios.get(url + `subreddits/search.json?limit=20&q=${search}`)
                     .then(function (response) {
-                        for(let index in response.data.children){
-                            searchResults.push(response.data.children[index].data)
+                        for(let index in response.data.data.children){
+                            searchResults.push(response.data.data.children[index].data)
                         }
                     })
+                    .then(() => {
+                        io.emit('search-Results', searchResults)
+                    })
 
-                 io.emit('search-Results', search)
             })
 
 
             //Returns topics from reddit, top/hot do not work or return private
             socket.on('searchSub', chosenReddit => {
-              console.log(chosenReddit)
-                const topics = []
+
+                const redditTopics = []
                 axios.get(url + `r/${chosenReddit}/.json?count=20`)
                     .then(function (response) {
-                        for(let index in idResult.data.children){
+                        for(let index in response.data.data.children){
                             const
-                                author = idResult.data.children[index].data.author,
-                                size = idResult.data.children[index].data.title.length,
-                                up = idResult.data.children[index].data.ups,
-                                numComments = idResult.data.children[index].data.num_comments,
-                                link = idResult.data.children[index].data.permalink
-
-                            if(size > 220){
-                                const title = idResult.data.children[index].data.title.slice(0, 220) + "..."
-                            }else{
-                                const title = idResult.data.children[index].data.title
-                            }
+                                author = response.data.data.children[index].data.author,
+                                size = response.data.data.children[index].data.title.length,
+                                up = response.data.data.children[index].data.ups,
+                                numComments = response.data.data.children[index].data.num_comments,
+                                link = response.data.data.children[index].data.permalink,
+                                title = response.data.data.children[index].data.title
 
 
-                            topics.push(
+                            redditTopics.push(
                                 ["Title: " + title
                                 +"\nAuthor: " + author
                                 +"\nUpvotes: " + up
@@ -54,8 +51,11 @@ module.exports = (server) => {
                                 +"\nUrl to comments: www.reddit.com" +  link])
                         }
                     })
+                    .then(() => {
+                        io.emit("reddit-Topics", redditTopics)
+                    })
 
-                io.emit("reddit-Topics", redditTopics)
+                
             })
 
 
@@ -64,14 +64,17 @@ module.exports = (server) => {
             socket.on("popular", pop => {
 
                 const popularSubReddit = []
+                
                 axios.get(url + `subreddits/popular.json`)
                     .then(function (response) {
-                        for(let index in results.data.children){
-                            popularSubReddit.push(results.data.children[index].data)
+                        for(let index in response.data.data.children){
+                            popularSubReddit.push(response.data.data.children[index].data)
+                            
                         }
                     })
-
-                io.emit("reddit-popular", popularSubReddit)
+                    .then(() => {
+                        io.emit("reddit-popular", popularSubReddit)
+                    })
 
             })
 
