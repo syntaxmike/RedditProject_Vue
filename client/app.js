@@ -54,14 +54,14 @@ const app = new Vue({
               if (!this.$refs.searchInput.value)
                   return
 
-              socket.emit('searchSub', this.$refs.searchInput.value)
+              socket.emit('search', this.$refs.searchInput.value)
           },
       searchTopic: function () {
         console.log(this.$refs.searchInput.value)
               if (!this.$refs.searchInput.value)
                   return
 
-              socket.emit('search', this.$refs.searchInput.value)
+              socket.emit('threads-inSubReddit', this.$refs.searchInput.value)
           },
       searchUser: function () {
         console.log(this.$refs.searchInput.value)
@@ -84,14 +84,14 @@ const app = new Vue({
 // Client Side Socket Event
 
 socket.on('search-Subreddit', search => {
-  console.log(search)
+
   app.results = []
 
   search.forEach(function(element) {
     console.log(element);
-    var title = element.title;
-    var header = element.public_description;
-    var tempObj = {title: title, description: header};
+    const title = element.title;
+    const header = element.public_description;
+    const tempObj = {title: title, description: header};
     app.results.push(tempObj)
   });
 
@@ -104,16 +104,12 @@ socket.on('search-Results', search => {
   app.results = []
 
   search.forEach(function(element) {
-    var title = element.title;
-    var header = element.public_description;
-    var url = 'https://www.reddit.com'+element.url
+    const title = element.title;
+    const header = element.desc;
+    const url = element.url;
+    const img = element.img;
 
-    if (element.icon_img == '')
-      var img = 'https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg'
-    else
-      var img = element.icon_img
-
-    var tempObj = {title: title, description: header, url: url, image: img};
+    const tempObj = {title: title, description: header, url: url, image: img};
     app.results.push(tempObj)
   });
 })
@@ -121,21 +117,18 @@ socket.on('search-Results', search => {
 /*Returns an array of objects topics within subreddit, possibly display in collapse of UI in unordered list
  * ex: {title: "Steam", author: "Me", upvotes: -1, ...}
 */
-socket.on('reddit-Topics', redditTopics => {
-  console.log(redditTopics)
+socket.on('subreddit-threads', redditTopics => {
+
   app.results = []
 
   redditTopics.forEach(function(element) {
 
-    var title = element.title;
-    var header = "Author: "+element.author+"<br># of comments: "+element.comments+"<br># of upvotes: "+element.upvotes+"<br>";
-    var url = 'https://www.reddit.com'+element.url
-    if (!element.hasOwnProperty('icon_img')){
-      var img = 'https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg'
-    }else
-      var img = element.icon_img
+    const title = element.title;
+    const header = "Author: "+element.author+"<br># of comments: "+element.comments+"<br># of upvotes: "+element.upvotes+"<br>";
+    const url = element.url;
+    const img = element.image;
 
-    var tempObj = {title: title, description: header, url: url, image: img};
+    const tempObj = {title: title, description: header, url: url, image: img};
     app.results.push(tempObj)
   });
 
@@ -150,16 +143,12 @@ socket.on('reddit-popular', popular => {
 
   popular.forEach(function(element) {
 
-    var title = element.display_name;
-    var header = element.public_description;
-    var url = 'https://www.reddit.com'+element.url
-    
-    if (element.icon_img == '')
-      var img = 'https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg'
-    else
-      var img = element.icon_img
+    const title = element.title;
+    const header = element.desc;
+    const url = element.url;
+    const img = element.img;
 
-    var tempObj = {title: title, description: header, url: url, image: img};
+    const tempObj = {title: title, description: header, url: url, image: img};
     app.results.push(tempObj)
   });
 
