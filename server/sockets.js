@@ -23,22 +23,22 @@ module.exports = (server) => {
                                 link = url + response.data.data.children[index].data.url
 
 
-                            if (img == ""){
+                        if (img == ""){
                                 
-                                searchResults.push(
-                                    {title:title,
-                                    desc: desc,
-                                    img: 'https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg',
-                                    url: link})
+                            searchResults.push(
+                                {title:title,
+                                desc: desc,
+                                img: 'https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg',
+                                url: link})
 
-                            }else{
+                        }else{
 
-                                searchResults.push(
-                                    {title:title,
-                                    desc: desc,
-                                    img: img,
-                                    url: link})
-                            }
+                            searchResults.push(
+                                {title:title,
+                                desc: desc,
+                                img: img,
+                                url: link})
+                        }
 
                         }
                     })
@@ -54,7 +54,7 @@ module.exports = (server) => {
 
                 const redditTopics = []
                 
-                axios.get(url + `/r/${chosenReddit}/.json?count=10`)
+                axios.get(url + `/r/${chosenReddit}/.json?limit=8`)
                     .then(function (response) {
                         for(let index in response.data.data.children){
                             const
@@ -62,29 +62,36 @@ module.exports = (server) => {
                                 up = response.data.data.children[index].data.ups,
                                 numComments = response.data.data.children[index].data.num_comments,
                                 link = url + response.data.data.children[index].data.permalink,
-                                image = response.data.data.children[index].data.thumbnail,
-                                title = response.data.data.children[index].data.title
+                                image = response.data.data.children[index].data.thumbnail
+                            
+                        //Use let, depending on title size it will need to be reassigned
+                        let title = response.data.data.children[index].data.title
 
-                                if (image == "self"){
+                        if(title.length > 145){
+                            title = response.data.data.children[index].data.title.slice(0, 145) + "..."
+                        }
+               
 
-                                    redditTopics.push(
-                                        {title:title,
-                                         author: author,
-                                        upvotes: up,
-                                        comments: numComments,
-                                        url: link,
-                                        image: 'https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg'})
-                                }else{
+                        if (image == "self"){
 
-                                    redditTopics.push(
-                                        {title:title,
-                                         author: author,
-                                        upvotes: up,
-                                        comments: numComments,
-                                        url: link,
-                                        image: image})
+                            redditTopics.push(
+                                {   title: title,
+                                    author: author,
+                                    upvotes: up,
+                                    comments: numComments,
+                                    url: link,
+                                    image: 'https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg'})
+                            }else{
 
-                                }
+                                redditTopics.push(
+                                {   title: title,
+                                    author: author,
+                                    upvotes: up,
+                                    comments: numComments,
+                                    url: link,
+                                    image: image})
+
+                            }
                         }
                     })
                     .then(() => {
@@ -101,7 +108,7 @@ module.exports = (server) => {
 
                 const popularSubReddit = []
 
-                axios.get(url + `/subreddits/popular.json`)
+                axios.get(url + `/subreddits/popular.json?limit=10&count=10`)
                     .then(function (response) {
                         for(let index in response.data.data.children){
                             const
