@@ -25,18 +25,6 @@ const resultsComponent = {
     props: ['data']
 }
 
-const searchButtonComponent = {
-  template: `<div class="input-group">
-              <input type="text" ref="searchInput" class="form-control" aria-label="Text input with dropdown button">
-              <div class="input-group-append">
-                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Type of Search</button>
-                <div class="dropdown-menu">
-                  <button class="dropdown-item" v-for="button in buttons" v-on:click="button.action" :id="button.id">{{button.text}}</button>
-                </div>
-              </div>
-            </div>`,
-props: ['buttons']
-}
 
 
 const socket = io()
@@ -50,21 +38,21 @@ const app = new Vue({
     },
     methods: {
       searchSubreddit: function () {
-        console.log(this.$refs.searchInput.value)
+
               if (!this.$refs.searchInput.value)
                   return
 
               socket.emit('search', this.$refs.searchInput.value)
           },
       searchTopic: function () {
-        console.log(this.$refs.searchInput.value)
+
               if (!this.$refs.searchInput.value)
                   return
 
               socket.emit('threads-inSubReddit', this.$refs.searchInput.value)
           },
       searchUser: function () {
-        console.log(this.$refs.searchInput.value)
+        
               if (!this.$refs.searchInput.value)
                   return
 
@@ -75,8 +63,7 @@ const app = new Vue({
           }
     },
     components: {
-        'results-component': resultsComponent,
-        'search-button-component': searchButtonComponent
+        'results-component': resultsComponent
     }
 })
 
@@ -88,7 +75,7 @@ socket.on('search-Subreddit', search => {
   app.results = []
 
   search.forEach(function(element) {
-    console.log(element);
+
     const title = element.title;
     const header = element.public_description;
     const tempObj = {title: title, description: header};
@@ -158,14 +145,14 @@ socket.on('reddit-popular', popular => {
   ex: true
 */
 socket.on('isAvailable', response => {
-  console.log(response)
+
   app.results = []
 
   if(response){
-    console.log("Username is available.")
+
     app.results.push({title: "Username is available."})
   }else{
-    console.log("Username is not available.")
+
     app.results.push({title: "Username is not available."})
   }
 })
