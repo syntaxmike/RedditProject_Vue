@@ -12,7 +12,7 @@ const resultsComponent = {
                     </h5>
                   </div>
 
-                  <div v-bind:id="index" class="collapse show" aria-labelledby="heading{{index}}" data-parent="#accordion">
+                  <div v-bind:id="index" class="collapse" aria-labelledby="heading{{index}}" data-parent="#accordion">
                     <div class="card-body">
                     <img :src="result.image" class="rounded float-left" width="100">
                       <p><span v-html="result.description"></span>
@@ -44,7 +44,7 @@ const app = new Vue({
     el: '#reddit-app',
     data: {
         search: '',
-        results: [{title:"Result", description:"Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS."},{title:"Resultado", description:"Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS."}],
+        results: [],
         previousSearches: [],
         searchButtons: [{action:'searchSubreddit', id:'subreddit', text:'Search Subreddits'}, {action:'searchUser', id:'user', text:'Search User'}]
     },
@@ -159,4 +159,13 @@ socket.on('reddit-popular', popular => {
 */
 socket.on('isAvailable', response => {
   console.log(response)
+  app.results = []
+
+  if(response){
+    console.log("Username is available.")
+    app.results.push({title: "Username is available."})
+  }else{
+    console.log("Username is not available.")
+    app.results.push({title: "Username is not available."})
+  }
 })
