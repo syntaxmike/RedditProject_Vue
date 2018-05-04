@@ -5,49 +5,75 @@ module.exports = (server) => {
         moment = require('moment')
         url = "https://www.reddit.com"
 
+    const searchHistory = []
+
+
+    const searchResult = (data, callback) => {
+
+        const result = {
+            title: data.display_name,
+            desc: data.public_description,
+            img: data.icon_img,
+            link: url + data.url
+        }
+
+        if(result.img == ""){
+            result.img = 'https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg'
+        }
+
+         callback(result)
+
+    }
+
+    const threadsResult = (data, callback) => {
+        const result = {
+            title: data.title,
+            author: data.author,
+            up: data.ups,
+            numComments: data.num_comments,
+            link: url + data.permalink,
+            image: data.thumbnail
+        }
+
+        if(result.image == "self"){
+            result.image = 'https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg'
+        }
+
+        if(result.title > 145){
+            result.title = result.title.slice(0, 145) + "..."
+        }
+
+
+
+         callback(result)
+    }
 
         io.on('connection', socket => {
-
 
             //Returns a list of sub-reddits related to search
             socket.on('search', search => {
 
                 const searchResults = []
+
                 axios.get(url + `/subreddits/search.json?limit=10&q=${search}`)
                     .then(function (response) {
                         for(let index in response.data.data.children){
-                            const
-                                title = response.data.data.children[index].data.display_name,
-                                desc = response.data.data.children[index].data.public_description,
-                                img = response.data.data.children[index].data.icon_img,
-                                link = url + response.data.data.children[index].data.url
 
-
-                        if (img == ""){
-                                
-                            searchResults.push(
-                                {title:title,
-                                desc: desc,
-                                img: 'https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg',
-                                url: link})
-
-                        }else{
-
-                            searchResults.push(
-                                {title:title,
-                                desc: desc,
-                                img: img,
-                                url: link})
-                        }
+                            searchResult(response.data.data.children[index].data, (result) => {
+                                searchResults.push(result)
+                            })
 
                         }
                     })
                     .then(() => {
+                        searchHistory.push({[search]: searchResults})
                         io.emit('search-Results', searchResults)
+                    })
+                    .catch((error) => {
+                        io.emit('error-api', error)
                     })
 
             })
-
 
             //Returns topics from sub reddit after a sub reddit is chosen
             socket.on('threads-inSubReddit', chosenReddit => {
@@ -57,51 +83,23 @@ module.exports = (server) => {
                 axios.get(url + `/r/${chosenReddit}/.json?limit=8`)
                     .then(function (response) {
                         for(let index in response.data.data.children){
-                            const
-                                author = response.data.data.children[index].data.author,
-                                up = response.data.data.children[index].data.ups,
-                                numComments = response.data.data.children[index].data.num_comments,
-                                link = url + response.data.data.children[index].data.permalink,
-                                image = response.data.data.children[index].data.thumbnail
-                            
-                        //Use let, depending on title size it will need to be reassigned
-                        let title = response.data.data.children[index].data.title
 
-                        if(title.length > 145){
-                            title = response.data.data.children[index].data.title.slice(0, 145) + "..."
-                        }
-               
+                            threadsResult(response.data.data.children[index].data, (result) => {
+                                redditTopics.push(result)
+                            })
 
-                        if (image == "self"){
-
-                            redditTopics.push(
-                                {   title: title,
-                                    author: author,
-                                    upvotes: up,
-                                    comments: numComments,
-                                    url: link,
-                                    image: 'https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg'})
-                            }else{
-
-                                redditTopics.push(
-                                {   title: title,
-                                    author: author,
-                                    upvotes: up,
-                                    comments: numComments,
-                                    url: link,
-                                    image: image})
-
-                            }
                         }
                     })
                     .then(() => {
+                        searchHistory.push({[chosenReddit]: redditTopics})
                         io.emit("subreddit-threads", redditTopics)
+                    })
+                    .catch((error) => {
+                        io.emit('error-api', error)
                     })
 
 
             })
-
-
 
             //Return a list of popular sub reddits, however it takes no parameter
             socket.on("popular", pop => {
@@ -111,35 +109,20 @@ module.exports = (server) => {
                 axios.get(url + `/subreddits/popular.json?limit=10&count=10`)
                     .then(function (response) {
                         for(let index in response.data.data.children){
-                            const
-                                title = response.data.data.children[index].data.display_name,
-                                desc = response.data.data.children[index].data.public_description,
-                                img = response.data.data.children[index].data.icon_img,
-                                link = url + response.data.data.children[index].data.url
 
+                            searchResult(response.data.data.children[index].data, (result) => {
+                                popularSubReddit.push(result)
+                            })
 
-                            if (img == ""){
-
-                                popularSubReddit.push(
-                                    {title:title,
-                                    desc: desc,
-                                    img: 'https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg',
-                                    url: link})
-
-                            }else{
-
-                                popularSubReddit.push(
-                                    {title:title,
-                                    desc: desc,
-                                    img: img,
-                                    url: link})
-                            }
                         }
                     })
                     .then(() => {
-
+                        searchHistory.push({pop: popularSubReddit})
                         io.emit("reddit-popular", popularSubReddit)
 
+                    })
+                    .catch((error) => {
+                        io.emit('error-api', error)
                     })
 
             })
@@ -149,9 +132,20 @@ module.exports = (server) => {
                 
                 axios.get(url + `/api/username_available.json?user=${userName}`)
                     .then(function (response) {
-                            io.emit("isAvailable", response.data)
+                        searchHistory.push({[userName]: response.data})
+                        io.emit("isAvailable", response.data)
+                    })
+                    .catch((error) => {
+                        io.emit('error-api', error)
                     })
 
+            })
+
+            //previous search
+            socket.on("previous-searches", prevSearch => {
+                searchHistory.forEach((element) =>{
+                    return searchHistory[element][prevSearch]
+                })
             })
 
         })

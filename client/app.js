@@ -156,3 +156,10 @@ socket.on('isAvailable', response => {
     app.results.push({title: "Username is not available."})
   }
 })
+
+/*
+* In case of error
+*/
+socket.on('error-api', error => {
+
+})
