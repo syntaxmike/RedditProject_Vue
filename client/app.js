@@ -31,10 +31,8 @@ const socket = io()
 const app = new Vue({
     el: '#reddit-app',
     data: {
-        search: '',
         results: [],
         previousSearches: [],
-        searchButtons: [{action:'searchSubreddit', id:'subreddit', text:'Search Subreddits'}, {action:'searchUser', id:'user', text:'Search User'}]
     },
     methods: {
       searchSubreddit: function () {
@@ -94,7 +92,7 @@ socket.on('search-Results', search => {
     const title = element.title;
     const header = element.desc;
     const url = element.url;
-    const img = element.img;
+    const img = element.image;
 
     const tempObj = {title: title, description: header, url: url, image: img};
     app.results.push(tempObj)
@@ -133,7 +131,7 @@ socket.on('reddit-popular', popular => {
     const title = element.title;
     const header = element.desc;
     const url = element.url;
-    const img = element.img;
+    const img = element.image;
 
     const tempObj = {title: title, description: header, url: url, image: img};
     app.results.push(tempObj)

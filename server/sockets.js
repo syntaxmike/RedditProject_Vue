@@ -7,45 +7,34 @@ module.exports = (server) => {
 
     const searchHistory = []
 
-
-    const searchResult = (data, callback) => {
-
-        const result = {
-            title: data.display_name,
-            desc: data.public_description,
-            img: data.icon_img,
-            link: url + data.url
-        }
-
-        if(result.img == ""){
-            result.img = 'https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg'
-        }
-
-         callback(result)
-
+    const defaultFields = {
+        title: "",
+        author: "",
+        desc: "",
+        image: "",
+        link: "",
+        up: 0,
+        num_comments: 0
     }
 
-    const threadsResult = (data, callback) => {
-        const result = {
-            title: data.title,
-            author: data.author,
-            up: data.ups,
-            numComments: data.num_comments,
-            link: url + data.permalink,
-            image: data.thumbnail
-        }
 
-        if(result.image == "self"){
-            result.image = 'https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg'
-        }
+    const formatSearchResult = (data, callback) => {
 
-        if(result.title > 145){
-            result.title = result.title.slice(0, 145) + "..."
-        }
+        const result = Object.assign({}, defaultFields)
 
+        result.title = (data.display_name != undefined) ? data.display_name : (data.title > 145) ? data.title.slice(0, 145) + "..." : data.title
+        result.author = data.author
+        result.desc = data.public_description == "" ? data.description : data.public_description
+        result.image = data.icon_img == "" ? 'https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg' : data.icon_img
+        result.url = data.permalink != undefined ? url + data.permalink : url + data.url
+        result.upvotes = data.ups
+        result.comments = data.num_comments
 
+        if(result.image === undefined)
+            result.image = data.thumbnail == "self" ? 'https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg' : data.thumbnail
 
          callback(result)
+
     }
 
         io.on('connection', socket => {
@@ -57,13 +46,14 @@ module.exports = (server) => {
 
                 axios.get(url + `/subreddits/search.json?limit=10&q=${search}`)
                     .then(function (response) {
+
                         for(let index in response.data.data.children){
 
-                            searchResult(response.data.data.children[index].data, (result) => {
+                            formatSearchResult(response.data.data.children[index].data, (result) => {
                                 searchResults.push(result)
                             })
 
-                        }
+                       }
                     })
                     .then(() => {
                         searchHistory.push({[search]: searchResults})
@@ -84,7 +74,7 @@ module.exports = (server) => {
                     .then(function (response) {
                         for(let index in response.data.data.children){
 
-                            threadsResult(response.data.data.children[index].data, (result) => {
+                            formatSearchResult(response.data.data.children[index].data, (result) => {
                                 redditTopics.push(result)
                             })
 
@@ -110,7 +100,7 @@ module.exports = (server) => {
                     .then(function (response) {
                         for(let index in response.data.data.children){
 
-                            searchResult(response.data.data.children[index].data, (result) => {
+                            formatSearchResult(response.data.data.children[index].data, (result) => {
                                 popularSubReddit.push(result)
                             })
 
