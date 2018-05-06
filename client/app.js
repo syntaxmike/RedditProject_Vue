@@ -31,10 +31,8 @@ const socket = io()
 const app = new Vue({
     el: '#reddit-app',
     data: {
-        search: '',
         results: [],
-        previousSearches: [],
-        searchButtons: [{action:'searchSubreddit', id:'subreddit', text:'Search Subreddits'}, {action:'searchUser', id:'user', text:'Search User'}]
+        previousSearches: []
     },
     methods: {
       searchSubreddit: function () {
