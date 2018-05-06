@@ -32,7 +32,7 @@ const app = new Vue({
     el: '#reddit-app',
     data: {
         results: [],
-        previousSearches: [],
+        previousSearches: []
     },
     methods: {
       searchSubreddit: function () {
