@@ -2,7 +2,7 @@ module.exports = (server) => {
     const
         axios = require("axios")
         io = require('socket.io')(server),
-        moment = require('moment')
+        moment = require('moment'),
         url = "https://www.reddit.com"
 
     const searchHistory = []
@@ -22,7 +22,7 @@ module.exports = (server) => {
 
         const result = Object.assign({}, defaultFields)
 
-        result.title = (data.display_name != undefined) ? data.display_name : (data.title > 145) ? data.title.slice(0, 145) + "..." : data.title
+        result.title = (data.display_name != undefined) ? data.display_name : (data.title.length > 135) ? data.title.slice(0, 135) + "..." : data.title
         result.author = data.author
         result.desc = data.public_description == "" ? data.description : data.public_description
         result.image = data.icon_img == "" ? 'https://c1.staticflickr.com/6/5567/31437486496_cf5cab625e_b.jpg' : data.icon_img
@@ -43,25 +43,30 @@ module.exports = (server) => {
             socket.on('search', search => {
 
                 const searchResults = []
+                const modHash = {modHash:""}
 
                 axios.get(url + `/subreddits/search.json?limit=10&q=${search}`)
                     .then(function (response) {
+
+                        modHash.modHash = response.data.data.after
 
                         for(let index in response.data.data.children){
 
                             formatSearchResult(response.data.data.children[index].data, (result) => {
                                 searchResults.push(result)
                             })
+                        }
 
-                       }
                     })
                     .then(() => {
-                        searchHistory.push({[search]: searchResults})
+                        searchHistory.push({id:`${search}`, type: modHash.modHash,  value: searchResults})
                         io.emit('search-Results', searchResults)
+                        io.emit("update-previous", {id:`${search}`, type: modHash.modHash, value: searchResults})
                     })
                     .catch((error) => {
                         io.emit('error-api', error)
                     })
+                    
 
             })
 
@@ -69,9 +74,12 @@ module.exports = (server) => {
             socket.on('threads-inSubReddit', chosenReddit => {
 
                 const redditTopics = []
-                
+                const modHash = {modHash:""}
+
                 axios.get(url + `/r/${chosenReddit}/.json?limit=8`)
                     .then(function (response) {
+                        modHash.modHash = response.data.data.after
+
                         for(let index in response.data.data.children){
 
                             formatSearchResult(response.data.data.children[index].data, (result) => {
@@ -79,14 +87,17 @@ module.exports = (server) => {
                             })
 
                         }
+
                     })
                     .then(() => {
-                        searchHistory.push({[chosenReddit]: redditTopics})
+                        searchHistory.push({id:`${chosenReddit}`, type: modHash.modHash, value: redditTopics})
                         io.emit("subreddit-threads", redditTopics)
+                        io.emit("update-previous", {id:`${chosenReddit}`, type: modHash.modHash, value: redditTopics})
                     })
-                    .catch((error) => {
+                    .catch(function (error){
                         io.emit('error-api', error)
                     })
+                    
 
 
             })
@@ -94,10 +105,13 @@ module.exports = (server) => {
             //Return a list of popular sub reddits, however it takes no parameter
             socket.on("popular", pop => {
 
+
                 const popularSubReddit = []
+                const modHash = {modHash:""}
 
                 axios.get(url + `/subreddits/popular.json?limit=10&count=10`)
                     .then(function (response) {
+                        modHash.modHash = response.data.data.after
                         for(let index in response.data.data.children){
 
                             formatSearchResult(response.data.data.children[index].data, (result) => {
@@ -107,23 +121,28 @@ module.exports = (server) => {
                         }
                     })
                     .then(() => {
-                        searchHistory.push({pop: popularSubReddit})
+                        searchHistory.push({id: `${pop}`, type: modHash.modHash, value: popularSubReddit})
                         io.emit("reddit-popular", popularSubReddit)
+                        io.emit("update-previous", {id: `${pop}`, type: modHash.modHash, value: popularSubReddit})
 
                     })
                     .catch((error) => {
                         io.emit('error-api', error)
                     })
+                    
 
             })
 
             //Check if a username is available, returns true or false.
             socket.on("user-name", userName => {
+                const user = []
                 
                 axios.get(url + `/api/username_available.json?user=${userName}`)
                     .then(function (response) {
-                        searchHistory.push({[userName]: response.data})
-                        io.emit("isAvailable", response.data)
+                        user.push(response.data)
+                    })
+                    .then(() => {
+                        io.emit("isAvailable", user)
                     })
                     .catch((error) => {
                         io.emit('error-api', error)
@@ -132,10 +151,15 @@ module.exports = (server) => {
             })
 
             //previous search
-            socket.on("previous-searches", prevSearch => {
-                searchHistory.forEach((element) =>{
-                    return searchHistory[element][prevSearch]
-                })
+            socket.on("get-prevSearches", history => {
+                searchHistory.forEach(element => {
+                    console.log(element.type )
+                    console.log(history.mod)
+                    if(element.id == history.name && history.mod === element.type){
+                            io.emit("return-prev", element.value)
+                    }
+                    
+                });
             })
 
         })

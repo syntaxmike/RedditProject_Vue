@@ -18,15 +18,20 @@
 </head>
 <body>
    <div id="reddit-app" class="container">
+     <div class="row">
+    <div class = "col col-lg-11">
      <div class="jumbotron jumbotron-fluid">
         <div class="container">
           <h1 class="display-4">Reddit API</h1>
           <p class="lead">Search Reddit</p>
         </div>
       </div>
+    </div>
+      <div class="col-sm-1"><span class="flow-text"><previous-component v-bind:value="previousSearches"></previous-component></span></div>
+    </div>
       <div class="row">
          <!-- message box column-->
-         <div class="col s12">
+         <div class="col col-lg-11">
            <div class="input-group">
              <input type="text" ref="searchInput" class="form-control" aria-label="Text input with dropdown button">
              <div class="input-group-append">

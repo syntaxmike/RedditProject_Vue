@@ -25,6 +25,32 @@ const resultsComponent = {
     props: ['data']
 }
 
+// Chat Component
+const previousSearch = {
+  template: `<table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Search History</th>
+                  </tr>
+
+                </thead>
+                <tbody>
+                  <tr v-for="(value, key) in value">
+                    <button class='btn btn-link' v-on:click='getSearch(value.id, value.type)'>{{value.id}}</button>
+                 </li>
+                  </tr>
+                </tbody>
+              </table>`,
+  props: ['value'],
+  methods: {
+
+    getSearch(id, hash){
+      socket.emit("get-prevSearches", {name: id, mod:hash})
+    }
+
+  }
+}
+
 
 
 const socket = io()
@@ -57,11 +83,12 @@ const app = new Vue({
               socket.emit('user-name', this.$refs.searchInput.value)
           },
       popular: function () {
-              socket.emit('popular', null)
+              socket.emit('popular', "pop")
           }
     },
     components: {
-        'results-component': resultsComponent
+        'results-component': resultsComponent,
+        'previous-component': previousSearch
     }
 })
 
@@ -88,6 +115,8 @@ socket.on('search-Subreddit', search => {
 socket.on('search-Results', search => {
   app.results = []
 
+
+
   search.forEach(function(element) {
     const title = element.title;
     const header = element.desc;
@@ -97,6 +126,7 @@ socket.on('search-Results', search => {
     const tempObj = {title: title, description: header, url: url, image: img};
     app.results.push(tempObj)
   });
+
 })
 
 /*Returns an array of objects topics within subreddit, possibly display in collapse of UI in unordered list
@@ -105,6 +135,9 @@ socket.on('search-Results', search => {
 socket.on('subreddit-threads', redditTopics => {
 
   app.results = []
+  if(redditTopics.length == 0){
+    app.results.push("Empty Search")
+  }
 
   redditTopics.forEach(function(element) {
 
@@ -156,8 +189,27 @@ socket.on('isAvailable', response => {
 })
 
 /*
+  Save previous search
+*/
+socket.on('update-previous', previous => {
+  app.previousSearches.push(previous)
+})
+
+/*
+  Get previous search results
+*/
+socket.on('return-prev', hist => {
+  app.results = []
+  app.results = hist
+
+})
+
+
+
+/*
 * In case of error
 */
 socket.on('error-api', error => {
-
+  app.results = []
+  app.results.push({title: "Something went wrong! :("})
 })
