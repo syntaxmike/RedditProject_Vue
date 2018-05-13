@@ -153,8 +153,6 @@ module.exports = (server) => {
             //previous search
             socket.on("get-prevSearches", history => {
                 searchHistory.forEach(element => {
-                    console.log(element.type )
-                    console.log(history.mod)
                     if(element.id == history.name && history.mod === element.type){
                             io.emit("return-prev", element.value)
                     }
