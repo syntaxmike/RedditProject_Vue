@@ -1,6 +1,6 @@
 Vue.config.devtools = true
 
-// Chat Component
+// Result Component
 const resultsComponent = {
     template: `<div class="accordion" id="accordion">
                 <div class="card" v-for="(result, index) in data">
@@ -25,7 +25,7 @@ const resultsComponent = {
     props: ['data']
 }
 
-// Chat Component
+// Previous Search Component
 const previousSearch = {
   template: `<table class="table table-sm">
                 <thead>
